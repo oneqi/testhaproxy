@@ -45,17 +45,17 @@ done
 
 setup_haproxy() {
     # Install haproxy
-    apt-get install -y software-properties-common
-    add-apt-repository -y ppa:vbernat/haproxy-1.6
-    apt-get update
-    apt-get install -y haproxy
+    sudo apt-get install -y software-properties-common
+    #sudo add-apt-repository -y ppa:vbernat/haproxy-1.6
+    sudo apt-get update -y
+    sudo apt-get install -y haproxy
 
     # Enable haproxy (to be started during boot)
-    tmpf=`mktemp` && mv /etc/default/haproxy $tmpf && sed -e "s/ENABLED=0/ENABLED=1/" $tmpf > /etc/default/haproxy && chmod --reference $tmpf /etc/default/haproxy
+    sudo tmpf=`mktemp` && sudo mv /etc/default/haproxy $tmpf && sudo sed -e "s/ENABLED=0/ENABLED=1/" $tmpf > /etc/default/haproxy && sudo chmod --reference $tmpf /etc/default/haproxy
 
     # Setup haproxy configuration file
     HAPROXY_CFG=/etc/haproxy/haproxy.cfg
-    cp -p $HAPROXY_CFG ${HAPROXY_CFG}.default
+    sudo cp -p $HAPROXY_CFG ${HAPROXY_CFG}.default
 
     echo "
 global
@@ -121,11 +121,11 @@ setup_keepalived() {
     # Default version available in Ubuntu 14.04 is 1.2.7-1ubuntu1.
 
     # Install a newer version of keepalived from a ppa.
-    add-apt-repository -y ppa:keepalived/stable && apt-get -y update && apt-get install -y keepalived
+    sudo add-apt-repository -y ppa:keepalived/stable && sudo apt-get -y update && sudo apt-get install -y keepalived
 
     # Setup keepalived.conf
     KEEPALIVED_CFG=/etc/keepalived/keepalived.conf
-    cp -p $KEEPALIVED_CFG ${KEEPALIVED_CFG}.default
+    sudo cp -p $KEEPALIVED_CFG ${KEEPALIVED_CFG}.default
 
     echo "
 vrrp_script chk_appsvc {
@@ -183,22 +183,23 @@ echo "
 }
 " >> $KEEPALIVED_CFG
 
-    chmod --reference ${KEEPALIVED_CFG}.default $KEEPALIVED_CFG
+    sudo chmod --reference ${KEEPALIVED_CFG}.default $KEEPALIVED_CFG
 
     # Script to perform application level status check
-    cp keepalived-check-appsvc.sh /usr/local/sbin/keepalived-check-appsvc.sh
-    chmod +x /usr/local/sbin/keepalived-check-appsvc.sh
+    sudo cp keepalived-check-appsvc.sh /usr/local/sbin/keepalived-check-appsvc.sh
+    sudo chmod +x /usr/local/sbin/keepalived-check-appsvc.sh
 
     # Script to update probe status based on keepalived status
-    cp keepalived-action.sh /usr/local/sbin/keepalived-action.sh
-    chmod +x /usr/local/sbin/keepalived-action.sh
+    sudo cp keepalived-action.sh /usr/local/sbin/keepalived-action.sh
+    sudo chmod +x /usr/local/sbin/keepalived-action.sh
 
     # Enable binding non local VIP
-    echo "net.ipv4.ip_nonlocal_bind=1" >> /etc/sysctl.conf
-    sysctl -p
+    sudo echo "net.ipv4.ip_nonlocal_bind=1" >> /etc/sysctl.conf
+    sudo sysctl -p
 
     # Restart keepalived
-    service keepalived stop && service keepalived start
+    #service keepalived stop && service keepalived start
+    sudo systemctl stop keepalived && sudo systemctl start keepalived
 }
 
 
